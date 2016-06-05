@@ -22,7 +22,7 @@
  *
  * URL: http://guifi.net/guifi/js/add-subnet-mask/%
  */
-function guifi_ajax_add_subnet_mask(&$form, &$form_state, $moreinfo) {
+function guifi_ajax_add_subnet_mask(&$form, &$form_state) {
   $int_name = $form_state['triggering_element']['#array_parents'][3];
   $int_id = $form_state['triggering_element']['#array_parents'][4];
 
@@ -44,7 +44,7 @@ function guifi_ajax_add_subnet_mask(&$form, &$form_state, $moreinfo) {
  * Function guifi_ajax_add_cable_local_link
  * TODO info
  */
-function guifi_ajax_add_cable_local_link(&$form, &$form_state, $moreinfo) {
+function guifi_ajax_add_cable_local_link(&$form, &$form_state) {
 
   $int_name = $form_state['triggering_element']['#array_parents'][3];
   $int_id = $form_state['triggering_element']['#array_parents'][4];
@@ -113,6 +113,34 @@ function guifi_ajax_add_cable_local_link(&$form, &$form_state, $moreinfo) {
 
 
 /**
+ * Function guifi_ajax_add_radio
+ *
+ * This function does...
+ *
+ * @param  array  $form        The form generated for the device edition
+ * @param  array  $form_state  The current state of the form
+ * @return array               The channel selection item in the form
+ */
+function guifi_ajax_add_radio($form, &$form_state){
+  dpm($form);
+  dpm($form_state);
+
+  // $form['r']['newRadio'] = guifi_radio_add_radio_form($form_state['input']);
+  // $form = form_builder($form['#form_id'], $form, $form_state);
+  // return $form['r']['newRadio'];
+
+  $radio_form = guifi_radio_add_radio_form($form_state['input']);
+  $form['r']['newRadio'] = $radio_form;
+  //$form = drupal_process_form($form['#form_id'], $form, $form_state);
+   $form = form_builder($form['#form_id'], $form, $form_state);
+  // $form = drupal_rebuild_form($form['#form_id'], $form_state, $form);
+  //$form_state['rebuild'] = TRUE;
+  return $form['r']['newRadio'];
+
+}
+
+
+/**
  * Function guifi_ajax_select_channel
  *
  * This function returns the channel selection dropdown that allows choosing a
@@ -125,13 +153,10 @@ function guifi_ajax_add_cable_local_link(&$form, &$form_state, $moreinfo) {
  * @param  array  $form_state  The current state of the form
  * @return array               The channel selection item in the form
  */
-function guifi_ajax_select_channel($form, &$form_state, $moreinfo){
+function guifi_ajax_select_channel($form, &$form_state){
   $radio_number = $form_state['triggering_element']['#array_parents'][2];
   return $form['r']['radios'][$radio_number]['s']['channel'];
 }
-
-
-
 
 
 /**
