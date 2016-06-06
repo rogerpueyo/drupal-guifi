@@ -120,7 +120,7 @@ function guifi_ajax_add_cable_local_link(&$form, &$form_state) {
  * after clicking on the "Add new radio icon".
  * The sub-menu is acctually only is hidden, so this AJAX function just redraws
  * it: it was the only way to make it work with Drupal 7. However, for some
- * strange reason, the whole $form must be rebuilt and returned to the wrapper
+ * strange reason, the whole $form must be rebuilt and returned to the wrapper,
  * (see guifi_radios.inc.php).
  *
  * @param  array  $form        The form generated for the device edition

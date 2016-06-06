@@ -893,7 +893,7 @@ function _guifi_radio_prepare_add_radio($edit) {
 }
 
 /* Add  a radio to the device */
-function guifi_radio_add_radio_submit(&$form, &$form_state) {
+function guifi_radio_add_radio_submit($form, &$form_state) {
   guifi_log(GUIFILOG_TRACE, "function guifi_radio_add_radio_submit()",$form_state['values']);
 
   // wrong form navigation, can't do anything
@@ -931,7 +931,7 @@ function guifi_radio_delete_submit($form, &$form_state) {
 }
 
 /* guifi_radio_link2ap(): Link client to an AP */
-function guifi_radio_add_link2ap_submit(&$form,&$form_state) {
+function guifi_radio_add_link2ap_submit($form,&$form_state) {
   $radio_id    =$form_state['clicked_button']['#parents'][1];
   $interface_id=$form_state['clicked_button']['#parents'][2];
   guifi_log(GUIFILOG_TRACE,
@@ -961,7 +961,7 @@ function guifi_radio_add_link2ap_submit(&$form,&$form_state) {
   return;
 }
 
-function guifi_radio_add_link2ap_form(&$form,&$form_state) {
+function guifi_radio_add_link2ap_form($form,&$form_state) {
   guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_link2ap_form(Radio: %d)",
     $form_state['filters']['from_radio']),
 //    $form_state['link2apInterface']);
@@ -1086,7 +1086,7 @@ function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = N
   return $lipv4;
 }
 
-function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
+function guifi_radio_add_link2ap_confirm_submit($form,&$form_state) {
   guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_link2ap_confirm_submit(Radio: %d)",
       $form_state['values']['filters']['from_radio']),
@@ -1196,7 +1196,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
   return;
 }
 
-function guifi_radio_add_wds_confirm(&$form,&$form_state) {
+function guifi_radio_add_wds_confirm($form,&$form_state) {
 
   $radio_id = $form_state['values']['filters']['from_radio'];
   $interface_id = key($form_state['values']['newInterface']);
@@ -1223,7 +1223,7 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
 }
 
 
-function guifi_radio_add_wds_confirm_submit(&$form,&$form_state) {
+function guifi_radio_add_wds_confirm_submit($form,&$form_state) {
   $radio_id = $form_state['values']['filters']['from_radio'];
   $interface_id = key($form_state['values']['newInterface']);
 
@@ -1281,7 +1281,7 @@ function guifi_radio_add_wds_confirm_submit(&$form,&$form_state) {
 }
 
 /* _guifi_add_wds(): Add WDS/p2p link */
-function guifi_radio_add_wds_form(&$form,&$form_state) {
+function guifi_radio_add_wds_form($form,&$form_state) {
   guifi_log(GUIFILOG_TRACE,"function guifi_radio_add_wds_form",$form_state['newInterface']);
 
   $form_weight = 0;
@@ -1359,7 +1359,7 @@ function _guifi_radio_add_wds_get_new_interface($nid, $ips_allocated = array()) 
   return $newif;
 }
 
-function guifi_radio_add_wds_submit(&$form, &$form_state) {
+function guifi_radio_add_wds_submit($form, &$form_state) {
   $radio_id = $form_state['clicked_button']['#parents'][1];
   $interface_id = $form_state['clicked_button']['#parents'][3];
 

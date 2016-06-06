@@ -54,7 +54,7 @@ function guifi_device_load($id, $ret = 'array') {
     // Get radio
     guifi_device_load_radios($id,$device);
   }
-    
+
     // PROVISIONAL: Ensure that at least there is one interface for each radio
   // Definitive fix will have create a mac database field for the radios
   foreach ($device['radios'] as $rid => $radio)
@@ -71,7 +71,7 @@ function guifi_device_load($id, $ret = 'array') {
         /* schema v2 */
         OR (interface_class = \'ethernet\')
         /* TODO HACK!!
-            Permetem temporalment fer enllaços per cable a interficies bridge 
+            Permetem temporalment fer enllaços per cable a interficies bridge
             OJO! afecta al comptador de ports quan es crea el switch dins un trasto, s\'ha de corregir.
         */
         OR (interface_class = \'bridge\')
@@ -117,7 +117,7 @@ function guifi_device_load($id, $ret = 'array') {
         }
       }
     }
-  
+
 
     $device['interfaces'][$i['id']] = $i;
 
@@ -185,7 +185,7 @@ function guifi_device_load($id, $ret = 'array') {
       } // foreach link
     } // foreach ipv4
   } // while interfaces
-  
+
 
   // Ensure there are ethernet devices
   // if less interfaces than expected by the model specs, create the new ones
@@ -201,7 +201,7 @@ function guifi_device_load($id, $ret = 'array') {
           }
           $s = array_search($value[interface_type],$m->ethernames);
           if (!is_null($s))
-            unset($m->ethernames[$s]);  
+            unset($m->ethernames[$s]);
         }
         // Creating the new interface and assigning a name not used
         $port = count($device[interfaces][interface_type] == 'ethernet') + 1 - $skip_interface ? $skip_interface : 0;
@@ -218,11 +218,11 @@ function guifi_device_load($id, $ret = 'array') {
           );
           $port++;
         }
-      }        
-  } 
-  
+      }
+  }
+
   guifi_log(GUIFILOG_TRACE,'function guifi_device_load(interfaces)',$device[interfaces]);
-      
+
   // getting vlan, aggregation and tunnel interfaces
   $aVlan = array_keys(guifi_types('vlan'));
   $aAggr = array_keys(guifi_types('aggregation'));
@@ -308,7 +308,7 @@ function guifi_device_load_radios($id,&$device) {
         array(':id' => $id,
         ':counter' => $radio['radiodev_counter']));
       while ($i = $qi->fetchAssoc()) {
-          
+
         // can't have 2 wLan/Lan bridges
         if (in_array($i['interface_type'],$listi))
           if (($i['interface_type']) == 'wLan/Lan')
@@ -316,10 +316,10 @@ function guifi_device_load_radios($id,&$device) {
         $listi[] = $i['interface_type'];
 
         // if radio does not have a mac, set the mac of the first interface found
-        if (empty($device['radios'][$radio['radiodev_counter']]['mac']) or 
+        if (empty($device['radios'][$radio['radiodev_counter']]['mac']) or
            $device['radios'][$radio['radiodev_counter']]['mac'] == '00:00:00:00:00:00')
            $device['radios'][$radio['radiodev_counter']]['mac'] = $i['mac'];
-          
+
         $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']] = $i;
 
         // For schema v1: wds/p2p are vlans over radios, and wLan/Lan are bridges
@@ -756,7 +756,7 @@ function guifi_device_form($form_id, &$form_state, $device) {
     '#weight'      => $form_weight++,
     '#description' =>  t('If you have a log server for mikrotik (dude), add your ip.'),
     //'#default_value' => 'Status Message',
-    //'#attributes' => array( 'onblur' => "if (this.value == '') {this.value = 'Status Message'}", 'onfocus' => "if (this.value == 'Status Message') {this.value = ''}", )  
+    //'#attributes' => array( 'onblur' => "if (this.value == '') {this.value = 'Status Message'}", 'onfocus' => "if (this.value == 'Status Message') {this.value = ''}", )
   );
   $form['main']['graph_server'] = array(
     '#type' => 'select',
@@ -806,7 +806,7 @@ function guifi_device_form($form_id, &$form_state, $device) {
   // Cable interfaces/ports
   if (isset($form_state['values']['interfaces'])) {
     foreach ($form_state['values']['interfaces'] as $k => $v)
-      unset($form_state['values']['interfaces'][$k]['ipv4']);   
+      unset($form_state['values']['interfaces'][$k]['ipv4']);
     $form['interfaces'] = guifi_ports_form($form_state['values'],$form_weight);
     $form['interfaces']['#weight'] = $form_weight++;
   }
@@ -901,7 +901,7 @@ function guifi_device_form_validate($form,&$form_state) {
           array('%addr'=>$valueS[ipv4])));
       $ips[] = $valueS[ipv4];
       $valueSIPCalc = _ipcalc($valueS[ipv4],$valueS[netmask]);
-          
+
       // Now looking into remote IPs
       foreach ($valueS[subnet] as $keyI => $valueI) {
         if (empty($valueI[ipv4]))
@@ -913,36 +913,36 @@ function guifi_device_form_validate($form,&$form_state) {
           if ($valueI['new'])
             $field = "ipv4][$keyS][subnet][$keyI][ipv4txt";
           else
-            $field = "ipv4][$keyS][subnet][$keyI][ipv4";                    
+            $field = "ipv4][$keyS][subnet][$keyI][ipv4";
           form_set_error(
             $field,
             t('address %addr is duplicated',
             array('%addr'=>$valueI[ipv4])));
-        }                    
+        }
         $ips[] = $valueI[ipv4];
         // same subnet as related IP?
         $valueIIPCalc = _ipcalc($valueI[ipv4],$valueS[netmask]);
-        if (($valueSIPCalc[netid] != $valueIIPCalc[netid]) or 
+        if (($valueSIPCalc[netid] != $valueIIPCalc[netid]) or
             ($valueSIPCalc[maskbits] != $valueIIPCalc[maskbits]))
           form_set_error(
             "ipv4][$keyS][subnet][$keyI][ipv4",
             t('address %addr1 not at same subnet as %addr2',
             array('%addr1'=>$valueI[ipv4],
-              '%addr2'=>$valueS[ipv4])));                    
-         
+              '%addr2'=>$valueS[ipv4])));
+
          // remote id should be populated
-         if (empty($valueI[did]))               
+         if (empty($valueI[did]))
             form_set_error(
               "ipv4][$keyS][subnet][$keyI][did",
               t('Remote device for address %addr1 not specified',
                 array('%addr1'=>$valueI[ipv4])
               )
-             );                    
-                     
+             );
+
       } // for remote IPs
-          
+
     } // for local IPs
-    
+
  /*   if (db_affected_rows(db_query("
       SELECT i.id
       FROM {guifi_interfaces} i,{guifi_ipv4} a
@@ -952,14 +952,14 @@ function guifi_device_form_validate($form,&$form_state) {
       $form_state['values']['id']))) {
       $message = t('IP %ipv4 already taken in the database. Choose another or leave the address blank.',
         array('%ipv4' => $form_state['values']['ipv4']));
-      form_set_error('ipv4',$message); 
+      form_set_error('ipv4',$message);
     } */
   }
-  
+
   // Validating vlans & aggregations
   foreach (array('vlans','aggregations') as $vtype)
     foreach ($form_state['values'][$vtype] as $kvlan=>$vlan) {
- 
+
       // interface_type (name) should have a value
       if (empty($vlan['interface_type']) and !form_get_errors()) {
         $vlan['interface_type'] = substr($vtype,0,4).$kvlan;
@@ -970,8 +970,8 @@ function guifi_device_form_validate($form,&$form_state) {
         drupal_set_message(t('Setting interface name to %name',
           array('%name'=>$vlan['interface_type'])),'warning');
       }
-            
-       
+
+
       // parent should exists
       if (empty($vlan['related_interfaces']))
             form_set_error(
@@ -979,8 +979,8 @@ function guifi_device_form_validate($form,&$form_state) {
               t('%name should have related interface(s)',
                 array('%name'=>$vlan[interface_type])
               )
-             );                    
-      
+             );
+
   } // foreach vlans, aggregations
 
   // No duplicate names on interface names
@@ -1212,7 +1212,7 @@ function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
 
       }
     }
-  } 
+  }
 
   $to_mail = explode(',',$edit['notification']);
 
@@ -1381,7 +1381,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
           $link,$log,$to_mail);
         guifi_log(GUIFILOG_TRACE,'going to SQL for remote link',$nllink);
       }
-      
+
     }
   } // foreach ipv4
 
@@ -1508,19 +1508,19 @@ function guifi_device_add() {
 
 function guifi_device_add_ipv4s_submit($form, &$form_state) {
   global $user;
-  
+
   $ipv4sdialog = $form_state['values']['ipv4']['ipv4sdialog'];
   guifi_log(GUIFILOG_BASIC,'function guifi_device_add_ipv4s_submit:',$form_state['values']['ipv4']['ipv4sdialog']);
-  
+
   if (($ipv4sdialog['ipv4'] == 'false') and ($ipv4sdialog['snet'] != 'false')) {
     $snet = explode('|',$ipv4sdialog['snet']);
     $ipv4sdialog['ipv4']      = $snet[0];
     $ipv4sdialog['netmask']   = $snet[1];
     $ipv4sdialog['ipv4_type'] = $snet[2];
     guifi_log(GUIFILOG_BASIC,'function guifi_device_add_ipv4s_submit SNET:',$snet);
-    
+
   }
-    
+
   $ipv4 = array(
     'new'          => true,
     'id'           =>null,
@@ -1530,10 +1530,10 @@ function guifi_device_add_ipv4s_submit($form, &$form_state) {
     'ipv4_type'    =>$ipv4sdialog['ipv4_type'],
   );
   guifi_log(GUIFILOG_BASIC,'function guifi_device_add_ipv4s_submit SAVE:',$ipv4);
-    
+
   _guifi_db_sql('guifi_ipv4',
     array('id'=>$ipv4['id'],'interface_id'=>$ipv4['interface_id']),$ipv4);
-  
+
   // $form_state['rebuild'] = TRUE;
 }
 
@@ -2078,7 +2078,7 @@ function guifi_device_print_data($device) {
   else
     $gs = node_load(guifi_graphs_get_server($device['id'],'device'));
 
-  $rows[] = array(t('graphs provided from'),array(
+  $rows[] = array(t('graphs provssssssssided from'),array(
     'data' => l(guifi_service_str($device['graph_server']),
               $gs->l, array('attributes' => array('title' => $gs->nick.' - '.$gs->title))),
     'colspan' => 2));
@@ -2282,11 +2282,11 @@ function guifi_device_print($device = NULL) {
     if (empty($device['interfaces']))
       break;
     $header = array(t('id'),t('connects with'),t('connector'),t('comments'),t('mac'),t('ip address'),t('netmask'));
-    $output .= theme('table', 
-    array('header' => array(t('physical ports & connections')), 
+    $output .= theme('table',
+    array('header' => array(t('physical ports & connections')),
           'rows' => array(array(
-                  theme('table', 
-                    array('header' => $header, 
+                  theme('table',
+                    array('header' => $header,
                           'rows' => guifi_device_print_interfaces($device),
                           'attributes' => array('class' => array('device-data'))))))));
 
@@ -2307,7 +2307,7 @@ function guifi_device_print($device = NULL) {
                               'attributes' => array(array('class'=>'device-data'))))))));
     }
     break;
-    
+
   case 'services':
     $output .= theme('table', array('header' => array(t('services information')), 'rows' => array(array(theme_guifi_services_list($device['id'], TRUE)))));
     break;
