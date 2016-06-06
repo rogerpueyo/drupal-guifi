@@ -257,7 +257,8 @@ function guifi_radio_form($edit, $form_weight) {
         '#attributes' => array('title' => t('Add wireless radio to this device')),
         '#ajax' => array(
           'callback' => 'guifi_ajax_add_radio',
-          'wrapper' => 'add-radio',
+          // 'wrapper' => 'add-radio',
+          'wrapper' => 'guifi-device-form',
           'method' => 'replace',
           'effect' => 'fade',
         ),
