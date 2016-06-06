@@ -184,25 +184,26 @@ function guifi_radio_form($edit, $form_weight) {
             '#parents' => array('radios',$key,'delete'),
             '#attributes' => array('title' => t('Delete radio')),
             '#submit' => array('guifi_radio_delete_submit'),
-            '#prefix'  => $prefix,
+            '#prefix'  => '<div id="delete-radio-'.$key.'">',
+            '#suffix'  => '</div>',
+            '#weight' => $bw++);
+
+          // TODO: Fix ticket about moving radios
+
+          $form['r']['radios'][$key]['change'] = array(
+            '#type' => 'image_button',
+            '#src' => drupal_get_path('module', 'guifi').'/icons/move.png',
+            '#parents' => array('radios',$key,'move'),
+            '#attributes' => array('title' => t('Move radio to another device')),
+            '#ahah' => array(
+              'path' => 'guifi/js/move-device/'.$key,
+              'wrapper' => 'move-device-'.$key,
+              'method' => 'replace',
+              'effect' => 'fade',
+            ),
+            '#prefix'  => '&nbsp;',
             '#suffix'  => '&nbsp;',
             '#weight' => $bw++);
-        // TODO: Fix ticket about moving radios
-
-              $form['r']['radios'][$key]['change'] = array(
-                '#type' => 'image_button',
-                '#src' => drupal_get_path('module', 'guifi').'/icons/move.png',
-                '#parents' => array('radios',$key,'move'),
-                '#attributes' => array('title' => t('Move radio to another device')),
-                '#ahah' => array(
-                  'path' => 'guifi/js/move-device/'.$key,
-                  'wrapper' => 'move-device-'.$key,
-                  'method' => 'replace',
-                  'effect' => 'fade',
-                ),
-                '#prefix'  => '&nbsp;',
-                '#suffix'  => '&nbsp;',
-                '#weight' => $bw++);
       }
 
       // if not first, allow to move up
@@ -263,15 +264,17 @@ function guifi_radio_form($edit, $form_weight) {
         '#prefix' => '<div id="add-radio">',
         '#suffix' => '</div>',
       );
-  } else {
-    $form['r']['newRadio'] = guifi_radio_add_radio_form($edit);
-  }
 
+    if (!$radio['new'])
+      $form['r']['newRadio'] = guifi_radio_add_radio_form($edit, TRUE);
+
+  } else {
+    $form['r']['newRadio'] = guifi_radio_add_radio_form($edit, FALSE);
+  }
   return $form;
 }
 
-function guifi_radio_add_radio_form($edit) {
-
+function guifi_radio_add_radio_form($edit, $hidden = FALSE) {
   // Edit radio form or add new radio
   $cr = 0; $tr = 0; $firewall=FALSE;
   $maxradios = db_query('SELECT radiodev_max FROM {guifi_model_specs} WHERE mid = :mid', array(':mid' => $edit[variable][model_id]))->fetchObject();
@@ -297,30 +300,35 @@ function guifi_radio_add_radio_form($edit) {
   $form['newradio_mode'] = array(
     '#type' => 'select',
     '#parents' => array('newradio_mode'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#default_value' =>  'client',
     '#options' => $modes_arr,
-    '#prefix' => '<table  style="width: 100%"><th colspan="0">'.t('New radio (mode)').'</th><tr><td  style="width: 0" align="right">',
-    '#suffix' => '</td>',
+    '#attributes' => ($hidden ? array('hidden' => '') : ''),
+    '#prefix' => ($hidden ? '' : '<table  style="width: 100%"><th colspan="0">'.t('New radio (mode)').'</th><tr><td style="width: 0" align="right">'),
+    '#suffix' => ($hidden ? '' : '</td>'),
 //    '#weight' => 20
   );
+
   $form['AddRadio'] = array(
     '#type' => 'button',
     '#parents' => array('AddRadio'),
     '#default_value' => t('Add new radio'),
     '#executes_submit_callback' => TRUE,
     '#submit' => array(guifi_radio_add_radio_submit),
-    '#prefix' => '<td style="width: 10em" align="left">',
-    '#suffix' => '</td><td style="width: 100%" align="right">&nbsp</td></tr>',
+    '#attributes' => ($hidden ? array('hidden' => '') : ''),
+    '#prefix' => ($hidden ? '' : '<td style="width: 10em" align="left">'),
+    '#suffix' => ($hidden ? '' : '</td><td style="width: 100%" align="right">&nbsp</td></tr>'),
 //    '#weight' => 21,
   );
+
   $form['help_addradio'] = array(
     '#type' => 'item',
-    '#description' => t('Usage:<br />Choose <strong>wireless client</strong> mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />You will not be able to define your link and get connected to the network until you add at least one radio.'),
-    '#prefix' => '<tr><td colspan="3">',
-    '#suffix' => '</td></tr></table>',
-//    '#weight' => 22,
+    '#description' => ($hidden ? '' : t('Usage:<br />Choose <strong>wireless client</strong> mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />You will not be able to define your link and get connected to the network until you add at least one radio.')),
+    '#prefix' => ($hidden ? '' : '<tr><td colspan="3">'),
+    '#suffix' => ($hidden ? '' : '</td></tr></table>'),
+    //    '#weight' => 22,
   );
+
   return $form;
 }
 

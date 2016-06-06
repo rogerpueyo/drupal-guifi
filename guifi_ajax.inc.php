@@ -115,29 +115,20 @@ function guifi_ajax_add_cable_local_link(&$form, &$form_state) {
 /**
  * Function guifi_ajax_add_radio
  *
- * This function does...
+ * This function returns the new radio sub-menu (consisting of the mode
+ * selection dropdown, the submit button and an explanatory text). It is called
+ * after clicking on the "Add new radio icon".
+ * The sub-menu is acctually only is hidden, so this AJAX function just redraws
+ * it: it was the only way to make it work with Drupal 7.
  *
  * @param  array  $form        The form generated for the device edition
  * @param  array  $form_state  The current state of the form
  * @return array               The channel selection item in the form
  */
 function guifi_ajax_add_radio($form, &$form_state){
-  dpm($form);
-  dpm($form_state);
-
-  // $form['r']['newRadio'] = guifi_radio_add_radio_form($form_state['input']);
-  // $form = form_builder($form['#form_id'], $form, $form_state);
-  // return $form['r']['newRadio'];
-
-  $radio_form = guifi_radio_add_radio_form($form_state['input']);
-  $form['r']['newRadio'] = $radio_form;
-  //$form = drupal_process_form($form['#form_id'], $form, $form_state);
-   $form = form_builder($form['#form_id'], $form, $form_state);
-  // $form = drupal_rebuild_form($form['#form_id'], $form_state, $form);
-  //$form_state['rebuild'] = TRUE;
-  return $form['r']['newRadio'];
-
-}
+  $form['r']['newRadio'] = guifi_radio_add_radio_form($form_state['input'], FALSE);
+  $form = form_builder($form['#form_id'], $form, $form_state);
+  return $form['r']['newRadio'];}
 
 
 /**
