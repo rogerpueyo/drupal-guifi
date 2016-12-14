@@ -2160,17 +2160,29 @@ function guifi_device_print_data($device) {
   return array_merge($rows);
 }
 
-/* guifi_device_links_print_data(): outputs the device link data, create an array of rows per each link */
+
+/**
+* Function guifi_device_links_print_data()
+*
+* This function returns an array of arrays containing the links of the device
+* specified by the $id parameter, one array per link.
+*
+* Aquesta funció retorna un vector de vectors que conté els enllaços del
+* dispositiu especificat al paràmetre $id, un vector per enllaç.
+*
+* @param  id     $id  The numeric identifier of a device
+* @return array       An array of arrays containing the links information
+*/
 function guifi_device_links_print_data($id) {
   $query = db_query("
-    SELECT i.*,a.ipv4,a.netmask
-    FROM {guifi_interfaces} i, {guifi_ipv4} a
-    WHERE i.id=a.interface_id AND i.device_id=%d
+    SELECT i.*,a.ipv4,a.netmask,l.id,l.routing
+    FROM {guifi_interfaces} i, {guifi_ipv4} a, {guifi_links} l
+    WHERE i.id=a.interface_id AND i.device_id=%d AND l.interface_id=a.interface_id
     ORDER BY i.interface_type",
     $id);
   while ($if = db_fetch_object($query)) {
     $ip = _ipcalc($if->ipv4,$if->metmask);
-    $rows[] = array($if->interface_type,$if->ipv4.'/'.$ip['netid'],$if->netmask,$if->mac);
+    $rows[] = array($if->interface_type,$if->ipv4.'/'.$ip['netid'],$if->netmask,$if->mac,$if->id,$if->routing);
   }
   return array_merge($rows);
 }
