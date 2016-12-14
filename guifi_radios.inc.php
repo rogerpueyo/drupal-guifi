@@ -719,7 +719,7 @@ function _guifi_radio_add_wlan($radio, $nid, $edit = NULL) {
 
 function _guifi_radio_add_wdsiface($radio, $nid, $edit = NULL) {
   guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_add_wdsiface(%d)',$radio));
-  
+
   $interface = array();
   $interface['new'] = TRUE;
   $interface['unfold'] = TRUE;
@@ -1087,17 +1087,61 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
     $radiodev_counter) =
         explode(',',$form_state['values']['linked']);
 
-  // get list of the current used ips
-  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values'],1);
+  // Code for hybrid nodes
+  // Codi per a nodes híbrids
+  //
+  // In case the remote device (this is, the AP) is part of a so-called hybrid
+  // node, it won't have an assigned addresses range, but the main router of the
+  // node will. Therefore, the IP address must be obtained from the hybrid
+  // node's main router. Crazy. Consequently, we check if any of the links the
+  // remote device has is of "Hybrid node" type.
+  //
+  // En cas que el dispositiu remot (és a dir, l'AP) sigui part d'un node de
+  // tipus híbrid, aquest no tindrà assignat un rang d'adreces, sinó que el
+  // tindrà el router principal del node. Per tant, caldrà obtenir l'adreça IP
+  // d'aquest darrer. Quina bogeria. Per tant, comprovem si algun dels enllaços
+  // del dispositiu remot és del tipus "Node híbrid".
 
-  $qAP = db_query(
-    'SELECT i.id, i.radiodev_counter, i.mac, a.ipv4, a.netmask, a.id aid ' .
-    'FROM {guifi_interfaces} i, {guifi_ipv4} a ' .
-    'WHERE i.device_id = %d ' .
-    '  AND i.interface_type in ("wLan/Lan","wLan") ' .
-    '  AND i.radiodev_counter=%d ' .
-    '  AND a.interface_id=i.id',
-    $device_id,$radiodev_counter);
+  $hybrid = FALSE;
+
+  foreach (guifi_device_links_print_data($device_id) as $key => $linkvalue) {
+    if ($linkvalue[5] == 'Hybrid node')
+      $hybrid = TRUE;
+  }
+
+  if ($hybrid) {
+    $link = guifi_links_print_link($linkvalue[4]);
+
+    foreach ($link as $key => $value)
+      if ($device_id != $value['device_id'])
+        $master_id = $value['device_id'];
+
+    $form_state_master = $form_state;
+    $form_state_master['values']['linked'] = str_replace($device_id, $master_id, $form_state_master['values']['linked']);
+
+    $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state_master['values'],1);
+
+    $qAP = db_query(
+      'SELECT i.id, i.radiodev_counter, i.mac, a.ipv4, a.netmask, a.id aid ' .
+      'FROM {guifi_interfaces} i, {guifi_ipv4} a ' .
+      'WHERE i.device_id = %d ' .
+      '  AND i.interface_type in ("wLan/Lan","wLan") ' .
+      '  AND a.interface_id=i.id',
+      $master_id);
+  }
+  else {
+    // get list of the current used ips
+    $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values'],1);
+
+    $qAP = db_query(
+      'SELECT i.id, i.radiodev_counter, i.mac, a.ipv4, a.netmask, a.id aid ' .
+      'FROM {guifi_interfaces} i, {guifi_ipv4} a ' .
+      'WHERE i.device_id = %d ' .
+      '  AND i.interface_type in ("wLan/Lan","wLan") ' .
+      '  AND i.radiodev_counter=%d ' .
+      '  AND a.interface_id=i.id',
+      $device_id,$radiodev_counter);
+  }
 
   $link = array();
 
