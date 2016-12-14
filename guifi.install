@@ -908,6 +908,7 @@ function guifi_install() {
   db_query("INSERT INTO {guifi_types} (id, type, text, description, relations) VALUES ('7', 'routing', 'OLSR-NG', 'OLSR-NG', '');");
   db_query("INSERT INTO {guifi_types} (id, type, text, description, relations) VALUES ('8', 'routing', 'BATMAN', 'BATMAN', '');");
   db_query("INSERT INTO {guifi_types} (id, type, text, description, relations) VALUES ('9', 'routing', 'RIP', 'RIP', '');");
+  db_query("INSERT INTO {guifi_types} (id, type, text, description, relations) VALUES ('10', 'routing', 'HybridNode', 'Hybrid node', '');");
 
 
   // --
@@ -3369,5 +3370,13 @@ function guifi_update_1043() {
   return $items;
 }
 
+function guifi_update_1046() {
+  $items = array();
+
+  $items[] = update_sql("INSERT INTO {guifi_types} (id, type, text, description, relations) VALUES " .
+                "('10', 'routing', 'HybridNode', 'Hybrid node', '');");
+
+  return $items;
+}
 
 ?>
