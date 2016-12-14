@@ -375,4 +375,47 @@ function guifi_links_check_overlap($overlap,&$form_state) {
   }
 }
 
+/**
+* Function guifi_links_print_link
+*
+* This function returns a two-items array with the information of the link
+* specified in the $link_id parameter, an empty array if the link was not found,
+* or false if the links is wrong (e.g. only one end found).
+*
+* Aquesta funció retorna un vector de dos elements amb la informació de l'enllaç
+* especificat al paràmetre $link_id, un vector buit si l'enllaç no s'ha trobat,
+* o fals si l'enllaç és incorrecte (p.ex. només té un extrem).
+*
+* @param  int    $link_id  The numeric identifier of the link
+* @return array            An array containing the link information.
+*/
+function guifi_links_print_link($link_id) {
+
+  $link = array();
+
+  $link_query = db_query(
+    "SELECT l.* " .
+    "FROM {guifi_links} l " .
+    "WHERE l.id=%d " ,
+    $link_id);
+
+  while ($link_end = db_fetch_array($link_query)) {
+    $link[] = $link_end;
+  }
+
+  switch (sizeof($link)) {
+    case 2:
+      return $link;
+      break;
+
+    case 0:
+      return $link;
+      break;
+
+    default:
+      return false;
+      break;
+  }
+}
+
 ?>
