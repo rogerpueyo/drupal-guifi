@@ -549,7 +549,9 @@ function guifi_ipv4subnet_form($ipv4,$k,$view = false) {
 
 
 function guifi_ipv4i_form($ipv4, $k, $first_port = true, $eInterfaces) {
-  
+
+  dpm('$ipv4i in form');
+  dpm($ipv4);
 //  if (empty($ipv4['ipv4']))
 //    return;
     
@@ -631,18 +633,31 @@ function guifi_ipv4i_form($ipv4, $k, $first_port = true, $eInterfaces) {
   ); 
   /* */
   
-  if (!$ipv4['deleted'])
-  $form['delete'] = array(
-    '#type' => 'image_button',
-    '#title' => ($first_port) ? t('delete') : false,
-    '#src' => drupal_get_path('module', 'guifi').'/icons/drop.png',
-    '#attributes' => array('title' => t('Delete address')),
-    '#submit' => array('guifi_ipv4i_delete_submit'),
-    '#prefix' => ($first_port) ?
-      '<div class="form-item"><label>&nbsp</label>' : false,
-    '#suffix' => ($first_port) ?
-      '</div>' : false,
-  );
+  if (!$ipv4['deleted']) {
+    $form['delete'] = array(
+      '#type' => 'image_button',
+      '#title' => ($first_port) ? t('delete') : false,
+      '#src' => drupal_get_path('module', 'guifi').'/icons/drop.png',
+      '#attributes' => array('title' => t('Delete address')),
+      '#submit' => array('guifi_ipv4_prefix_delete_submit'),
+      '#prefix' => ($first_port) ?
+        '<div class="form-item"><label>&nbsp</label>' : false,
+      '#suffix' => ($first_port) ?
+        '</div>' : false,
+    );
+  }
+  else{
+    $form['delete'] = array(
+      '#type' => 'textfield',
+      '#title' => false,
+      '#value' => "THIS WILL BE DELETED",
+      '#attributes' => array('title' => t('Delete address')),
+      '#prefix' => ($first_port) ?
+        '<div class="form-item"><label>&nbsp</label>' : false,
+      '#suffix' => ($first_port) ?
+        '</div>' : false,
+    );
+  }
 
  // Subnet members
   $form['subnet'] = guifi_ipv4subnet_form($ipv4,$k,false);
@@ -999,7 +1014,8 @@ function guifi_device_ipv4_link_form($ipv4,$tree, $cable = TRUE) {
      // singlelink set
      $multilink = FALSE;
   }
-
+  dpm('$ipv4 in form');
+  dpm($ipv4);
   // Deleting the IP address
   if (($multilink) and (!$ipv4['deleted'])) {
     $f['local']['delete_address'] = array(
@@ -1206,6 +1222,68 @@ function guifi_ipv4_delete_submit(&$form,&$form_state) {
 
   if ($interface['ipv4'][$ka]['new'])
     unset($interface['ipv4'][$ka]);
+
+  return;
+}
+
+/**
+* Function guifi_ipv4_prefix_delete_submit
+*
+* This function is called as the submit action when a network prefix (i.e. the
+* master IPv4 address in a network prefix) is deleted, triggered by a click on
+* the "Delete address" button. It has to gather all the IPv4 addresses in the
+* network prefix and delete them, as well as the links associated.¹
+*
+* Notes/TODOs:
+*  ¹ Once IPv6 is implemented, the removal of IPv4 addresses should check that
+*    the associated link is not tied to any IPv6 address.
+*
+*  ² The IPv4 to be deleted and its associated interface used to be retrieved
+*    like:
+*       $values = $form_state['clicked_button']['#parents'];
+*       $k = count($values);
+*       $ka = $values[$k -2]; // ipv4#
+*       $ki = $values[$k -4]; // interface#
+*
+*    Most likely, the IPv4 part of the form is not saving the #parents attribute
+*    in $form_state. We should check if the current way to retrieve $ka and $ki
+*    is appropriate.
+*
+*
+* @param  object  $form        The mighty device form state
+* @param  object  $form_state  The mighty device form state
+*/
+function guifi_ipv4_prefix_delete_submit(&$form,&$form_state) {
+  dpm("DELETE IPv4 PREFIX");
+  dpm('$form');
+  //dpm(&$form);
+
+  dpm('$form_state:');
+  dpm($form_state);
+
+  // TODO:² check if this is the best way to check if the IPv4 address is to be
+  // deleted. It kinda works...
+  //
+  // Check if the IPv4 is marked as to be deleted:
+  $parents = $form_state['clicked_button']['#parents'];
+  dpm ('$parents:');
+  dpm ($parents);
+  if ( $form_state['clicked_button']['#post'][$parents[0]][$parents[1]][$parents[2]]) {
+
+    dpm ("IF TRUE");
+    
+    $ipv4 = &$form_state['values'][$parents[0]][$parents[1]];
+    dpm('$ipv4:');
+    dpm($ipv4);
+    $ipv4['deleted'] = TRUE;
+    dpm('$ipv4 del:');
+    dpm($ipv4);
+
+    dpm($form_state['values'][$parents[0]][$parents[1]]);
+    $form_state['values'][$parents[0]][$parents[1]]['deleted']=TRUE;
+    dpm($form_state['values'][$parents[0]][$parents[1]]);
+    $form_state['rebuild'] = TRUE;
+  }
 
   return;
 }

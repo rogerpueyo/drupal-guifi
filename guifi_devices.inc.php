@@ -847,6 +847,9 @@ function guifi_device_form($form_state, $params = array()) {
   $form['ipv4'] = guifi_ipv4s_form($form_state['values'],$form_weight);
   $form['ipv4']['#weight'] = $form_weight++;
 
+  dpm('$form after adding ipv4s part');
+  dpm($form);
+
   guifi_log(GUIFILOG_TRACE,sprintf('function guifi_device_form(abans comments)'),$form_weight);
 
   // Comments
@@ -868,6 +871,10 @@ function guifi_device_form($form_state, $params = array()) {
   $form['dbuttons']['#weight'] = $form_weight++;
 
   guifi_log(GUIFILOG_TRACE,sprintf('function guifi_device_form(form_final)'),$form);
+  dpm('$form sencer');
+  dpm($form);
+  dpm('$form_state sencer');
+  dpm($form_state);
   return $form;
 
 }
